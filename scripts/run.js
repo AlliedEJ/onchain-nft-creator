@@ -11,10 +11,6 @@ const main = async () => {
     //Create Second NFT
     txn = await nftContract.makeEpicNFT();
     await txn.wait()
-
-    //Log Random Function
-    let randm = await nftContract.pickRandomFirstWord(3);
-
 }
 
 const runMain = async () => {

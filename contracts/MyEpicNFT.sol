@@ -5,6 +5,7 @@ import "@openzeppelin/contracts/utils/Strings.sol";
 import "@openzeppelin/contracts/token/ERC721/extensions/ERC721URIStorage.sol";
 import "@openzeppelin/contracts/utils/Counters.sol";
 import "hardhat/console.sol";
+import { Base64 } from "./library/Base64.sol";
 
 contract MyEpicNFT is ERC721URIStorage {
     using Counters for Counters.Counter;
@@ -14,7 +15,7 @@ contract MyEpicNFT is ERC721URIStorage {
 
     string[] firstWords =["Pork", "Toast", "Onion", "Carrot", "Peach", "Apple"];
     string[] secondWords =["Wit", "Clever", "Stable", "Chaotic", "Messy", "Godly"];
-    string[] thirdWords =["Madame", "Senor", "Mister", "Maam", "Clown", "Fool", "Master"];
+    string[] thirdWords =["Madame", "Ape", "Mister", "Maam", "Clown", "Fool", "Master"];
 
     constructor () ERC721("wordsToLiveNFT", "WTL"){
         console.log("NFT Contract is launched. Whoa!");
@@ -27,17 +28,57 @@ contract MyEpicNFT is ERC721URIStorage {
     function pickRandomFirstWord (uint256 tokenId) public view returns (string memory){
         uint256 rand = random(string(abi.encodePacked("FIRST_WORD", Strings.toString(tokenId))));
         rand = rand % firstWords.length;
-        console.log(rand);
         return firstWords[rand];
+    }
+
+    function pickRandomSecondWord (uint256 tokenId) public view returns (string memory){
+        uint256 rand = random(string(abi.encodePacked("SECOND_WORD", Strings.toString(tokenId))));
+        rand = rand % secondWords.length;
+        return secondWords[rand];
+    }
+    function pickRandomThirdWord (uint256 tokenId) public view returns (string memory){
+        uint256 rand = random(string(abi.encodePacked("THIRD_WORD", Strings.toString(tokenId))));
+        rand = rand % thirdWords.length;
+        return thirdWords[rand];
     }
     function makeEpicNFT () public {
         uint256 newTokenId = _tokenIds.current();
 
+        string memory w1 = pickRandomFirstWord(newTokenId);
+        string memory w2 = pickRandomSecondWord(newTokenId);
+        string memory w3 = pickRandomThirdWord(newTokenId);
+        string memory combinedWord = string(abi.encodePacked(w1, w2, w3));
+
+        //Create the final SVG image code (NOT base64 encoded)
+        string memory finalSvg = string(abi.encodePacked(baseSvg, combinedWord, "</text></svg>"));
+
+        //Create base64 encode JSON & final encoded SVG
+        string memory json = Base64.encode(
+            bytes(
+                string(
+                    abi.encodePacked(
+                        '{"name": "',
+                        combinedWord,
+                        '", "description": "A collection of philosophies to Live By.", "image": "data:image/svg+xml;base64,',
+                        Base64.encode(bytes(finalSvg)),
+                        '"}'
+                    )
+                )
+            )
+        );
+        
+        //Set finalTokenURI including Base64 encoded JSON & SVG (fully on-chain)
+        string memory finalTokenURI = string(abi.encodePacked("data:application/json;base64,", json)); 
+        console.log("\n--------------------");
+        console.log(finalTokenURI);
+        console.log("--------------------\n");
+
         _safeMint(msg.sender, newTokenId);
 
-        _setTokenURI(newTokenId, "data:application/json;base64,ewogICAgIm5hbWUiOiAiRXBpY0xvcmRIYW1idXJnZXIiLAogICAgImRlc2NyaXB0aW9uIjogIkFuIE5GVCBmcm9tIHRoZSBoaWdobHkgYWNjbGFpbWVkIHNxdWFyZSBjb2xsZWN0aW9uIiwKICAgICJpbWFnZSI6ICJkYXRhOmltYWdlL3N2Zyt4bWw7YmFzZTY0LCBQSE4yWnlCNGJXeHVjejBpYUhSMGNEb3ZMM2QzZHk1M015NXZjbWN2TWpBd01DOXpkbWNpSUhCeVpYTmxjblpsUVhOd1pXTjBVbUYwYVc4OUluaE5hVzVaVFdsdUlHMWxaWFFpSUhacFpYZENiM2c5SWpBZ01DQXpOVEFnTXpVd0lqNEtJQ0FnSUR4emRIbHNaVDR1WW1GelpTQjdJR1pwYkd3NklIZG9hWFJsT3lCbWIyNTBMV1poYldsc2VUb2djMlZ5YVdZN0lHWnZiblF0YzJsNlpUb2dNVFJ3ZURzZ2ZUd3ZjM1I1YkdVK0NpQWdJQ0E4Y21WamRDQjNhV1IwYUQwaU1UQXdKU0lnYUdWcFoyaDBQU0l4TURBbElpQm1hV3hzUFNKaWJHRmpheUlnTHo0S0lDQWdJRHgwWlhoMElIZzlJalV3SlNJZ2VUMGlOVEFsSWlCamJHRnpjejBpWW1GelpTSWdaRzl0YVc1aGJuUXRZbUZ6Wld4cGJtVTlJbTFwWkdSc1pTSWdkR1Y0ZEMxaGJtTm9iM0k5SW0xcFpHUnNaU0krUlhCcFkweHZjbVJJWVcxaWRYSm5aWEk4TDNSbGVIUStDand2YzNablBnPT0iCn0=");
-        console.log("NFT with ID %s has been minted to %s", newTokenId, msg.sender);
+        _setTokenURI(newTokenId, finalTokenURI);
 
         _tokenIds.increment();
+
+        console.log("NFT with ID %s has been minted to %s", newTokenId, msg.sender);
     }
 }
