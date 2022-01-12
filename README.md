@@ -25,4 +25,5 @@ npm install
 npm start run
 ```
 *defaults to port 3000*
+
 *The app will be interacting with the projects Rinkeby Smart Contract*
