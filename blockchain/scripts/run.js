@@ -11,6 +11,10 @@ const main = async () => {
     //Create Second NFT
     txn = await nftContract.makeEpicNFT();
     await txn.wait()
+
+    //Check tokenCoun
+    let count = await nftContract.getTotalMint();
+    console.log(count.toNumber());
 }
 
 const runMain = async () => {

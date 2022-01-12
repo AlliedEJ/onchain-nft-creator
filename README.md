@@ -1,15 +1,28 @@
-# Basic Sample Hardhat Project
+# On-Chain NFT Creator
 
-This project demonstrates a basic Hardhat use case. It comes with a sample contract, a test for that contract, a sample script that deploys that contract, and an example of a task implementation, which simply lists the available accounts.
+## Summary
+This project creates randomly generated NFTs and, uniquely, all aspects of the NFT inlcuding image, description, and name are stored on-chain using base64 encoding. 
 
-Try running some of the following tasks:
+## Live Deployment
+*heroku link*
 
-```shell
-npx hardhat accounts
-npx hardhat compile
-npx hardhat clean
-npx hardhat test
-npx hardhat node
-node scripts/sample-script.js
-npx hardhat help
-```
+## Running the Project Locally
+### Prerequisites
+- React
+- Npm >= v7.0
+- Hardhat
+- Metamask Wallet (integrated w/ compatible browser)
+
+### Local Setup 
+1. Clone the repo
+
+2. Install the project dependencies via npm
+'''
+npm install
+'''
+3. Start Your Local Server
+'''
+npm start run
+'''
+*defaults to port 3000*
+*The app will be interacting with the projects Rinkeby Smart Contract*
